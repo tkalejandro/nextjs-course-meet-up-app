@@ -7,6 +7,7 @@ function MeetupItem(props) {
   const router = useRouter()
   const showDetailsHandler = () => {
     //This push a new site using the dynamic routing
+    
     router.push(`/${props.id}`)
   }
 
