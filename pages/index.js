@@ -58,4 +58,17 @@ export const getStaticProps = async () => {
     revalidate:10
   }
 }
+
+// export const getServerSideProps = async (context) => {
+//   const req = context.req
+//   const res = context.res
+
+//   return {
+//     props: {
+//       meetups: DUMMY_MEETUPS
+//     }
+//   };
+// }
+
+
 export default HomePage;
