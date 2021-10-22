@@ -51,7 +51,11 @@ export const getStaticProps = async () => {
   return {
     props: {
       meetups: DUMMY_MEETUPS
-    }
+    },
+    //Wait 10 seconds! and regenerate new data.
+    //3600 Hour
+    //1 second
+    revalidate:10
   }
 }
 export default HomePage;
