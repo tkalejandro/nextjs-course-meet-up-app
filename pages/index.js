@@ -1,29 +1,9 @@
+import { MongoClient } from "mongodb"
 import MeetUpList from "../components/meetups/MeetupList"
 
-const DUMMY_MEETUPS = [
-  {
-    id: "m1",
-    title: "some Title",
-    image: "https://image.geo.de/30143558/t/Xj/v4/w1440/r0/-/-cartagena-m-eg695b-jpg--81730-.jpg",
-    address: "Cartagena old City",
-    description: "Here goes some description"
-  },
-  {
-    id: "m2",
-    title: "meet up 2",
-    image: "https://image.geo.de/30143558/t/Xj/v4/w1440/r0/-/-cartagena-m-eg695b-jpg--81730-.jpg",
-    address: "Cartagena old City",
-    description: "Here goes some description"
-  },
-  {
-    id: "m3",
-    title: "meet up 3",
-    image: "https://image.geo.de/30143558/t/Xj/v4/w1440/r0/-/-cartagena-m-eg695b-jpg--81730-.jpg",
-    address: "Cartagena old City",
-    description: "Here goes some description"
-  }
+//NEXT JS will detect what is backend or what is frontend
 
-]
+
 const HomePage = (props) => {
 
 
@@ -48,14 +28,30 @@ const HomePage = (props) => {
 // }
 
 export const getStaticProps = async () => {
+  //Connect to MongoDB
+  const client = await MongoClient.connect("mongodb+srv://admin:adminadmin@cluster0.55hxa.mongodb.net/meetUps?retryWrites=true&w=majority")
+  const db = client.db()
+  const meetupsCollection = db.collection("meetups")
+  const meetups = await meetupsCollection.find().toArray()
+  //console.log("MEET UPS------->", meetups)
+  client.close()
   return {
     props: {
-      meetups: DUMMY_MEETUPS
+      meetups: meetups.map(meetup => ({
+        title: meetup.data.title,
+        address: meetup.data.address,
+        image: meetup.data.image,
+        //ERROR SERIALIZING .meetups[0]._id
+        //Is an object, thats why we do it this way, and then we make a string.
+        id: meetup._id.toString()
+
+      })),
+      //meetups: DUMMY_MEETUPS
     },
     //Wait 10 seconds! and regenerate new data.
     //3600 Hour
     //1 second
-    revalidate:10
+    revalidate: 1
   }
 }
 

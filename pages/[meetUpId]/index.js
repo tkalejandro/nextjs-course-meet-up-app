@@ -1,40 +1,39 @@
 
 //import { getStaticProps } from ".."
+import { MongoClient, ObjectId } from "mongodb"
 import MeetUpDetail from "../../components/meetups/MeetUpDetail"
 
 
-const MeetUpDetails = () => {
+const MeetUpDetails = (props) => {
+    console.log("MEETUP DETAILS-------->", props.meetUpData)
     return (
 
         <MeetUpDetail
-            image="https://image.geo.de/30143558/t/Xj/v4/w1440/r0/-/-cartagena-m-eg695b-jpg--81730-.jpg"
-            title="First Meeting"
-            address="Some street somewhere"
-            description="Here goes some description"
+            image={props.meetUpData.image}
+            title={props.meetUpData.title}
+            address={props.meetUpData.address}
+            description={props.meetUpData.description}
         />
 
     )
 }
-export const getStaticPaths = () => {
+export const getStaticPaths = async () => {
+    //CONNECT TO MOONGO!
+    const client = await MongoClient.connect("mongodb+srv://admin:adminadmin@cluster0.55hxa.mongodb.net/meetUps?retryWrites=true&w=majority")
+    const db = client.db()
+    const meetupsCollection = db.collection("meetups")
+    const meetups = await meetupsCollection.find({}, {_id: 1}).toArray()
+
+    client.close()
+
+
     return {
         fallback: false,
-        paths: [
-            {
-                params: {
-                    meetUpId: "m1"
-                }
-            },
-            {
-                params: {
-                    meetUpId: "m2"
-                }
-            },
-            {
-                params: {
-                    meetUpId: "m3"
-                }
+        paths: meetups.map(meetup => ({
+            params: {
+                meetUpId: meetup._id.toString()
             }
-        ]
+        })) 
     }
 }
 
@@ -44,16 +43,25 @@ export const getStaticProps = async (context) => {
     const meetUpId = context.params.meetUpId
     console.log(meetUpId)
     //Fetch Data
+    const client = await MongoClient.connect("mongodb+srv://admin:adminadmin@cluster0.55hxa.mongodb.net/meetUps?retryWrites=true&w=majority")
+    const db = client.db()
+    const meetupsCollection = db.collection("meetups")
+    console.log("MEETUP COLLECTION-------->", meetupsCollection)
+
+    //!THIS IS SUPPOSE TO WORK BUT IT DOESNT
+    const selectedMeetUpToShow = await meetupsCollection.findOne({_id: ObjectId(meetUpId)}) //This change the version same to MoongoDB
+
+    //const showMeTheData = await meetupsCollection.find().toArray()
+    //console.log("SHOW ME THE DATA-------------_>", showMeTheData)
+    //console.log("index0-->", showMeTheData[0]._id.toString()) --> This give the correct ID same as params.
+    //const selectedMeetUpToShow = showMeTheData.find(data => data._id.toString() === meetUpId)
+    //console.log("SELECTED MEETUP ---------->", selectedMeetUpToShow)
+
+    client.close()
 
     return {
         props: {
-            meetUpData: {
-                id: meetUpId,
-                image: "https://image.geo.de/30143558/t/Xj/v4/w1440/r0/-/-cartagena-m-eg695b-jpg--81730-.jpg",
-                title: "First Meeting",
-                address: "Some street somewhere",
-                description: "Here goes some description"
-            }
+            meetUpData: {...selectedMeetUpToShow.data, id: selectedMeetUpToShow._id.toString()} //Lets give the ID inside DATA!
         }
     }
 }
