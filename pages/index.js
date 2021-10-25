@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb"
 import MeetUpList from "../components/meetups/MeetupList"
+import Head from "next/head"
 
 //NEXT JS will detect what is backend or what is frontend
 
@@ -9,6 +10,14 @@ const HomePage = (props) => {
 
   return (
     <>
+      <Head>
+        <title>React MeetUp</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly active React meetups!"
+        />
+
+      </Head>
 
       {/* This MeetUpList Component is taking an array as a prop and map it inside. */}
       <MeetUpList meetups={props.meetups} />
